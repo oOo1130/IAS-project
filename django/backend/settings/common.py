@@ -13,6 +13,13 @@ Backlog:
 """
 
 import os
+from os import path
+import sys
+# sys.path.insert(1, "D:\\_oOo\\IAS-project\\shared_utils")
+# print(sys.path)
+# import sys
+# sys.path.append(path.abspath(r'..\\shared_utils'))
+# print(sys.path)
 from shared_utils import folder_utils
 
 # import pymysql
@@ -184,7 +191,7 @@ LOGGING = {
 }
 
 CELERY = {
-    'BROKER_URL': os.environ['CELERY_BROKER'],
+    # 'BROKER_URL': os.environ['CELERY_BROKER'],
     'CELERY_IMPORTS': ('worker.tasks', ),
     'CELERY_TASK_SERIALIZER': 'json',
     'CELERY_RESULT_SERIALIZER': 'json',
