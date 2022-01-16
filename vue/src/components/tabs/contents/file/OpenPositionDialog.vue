@@ -623,17 +623,18 @@ export default {
 
         if (patterns[i].start > 0) {
           str = fileNameOnly.substring(start, patterns[i].start);
-          html += `<pre>${str}</pre>`;
+          html += `<pre id='${i}'>${str}</pre>`;
         }
         str = fileNameOnly.substring(patterns[i].start, patterns[i].end);
-        html += `<pre class="${patterns[i].color}--text">${str}</pre>`;
+        // html += `<pre id='color${i}' class="${patterns[i].color}--text">${str}</pre>`;
+        html += `<pre id='${str}'>${str}</pre>`;
 
         start = patterns[i].end;
       }
 
       str = fileNameOnly.substring(start, fileNameOnly.length);
       html += `<pre>${str}</pre>`;
-
+      console.log(html);
       return html;
     },
 
@@ -865,26 +866,29 @@ export default {
     clickNamePattern(index) {
       const { text, startOffset, endOffset } = this.selectionRange;
       let selectedText = this.getSelectionText();
-
       if (text !== "" && selectedText !== "") {
         if (text === selectedText) {
           if (startOffset > -1 && endOffset > -1) {
-            const patterns = this.namePatterns.filter(n => n.start > -1);
-            for (var i = 0; i < patterns.length; i++) {
-              if (
-                isOverlapped(
-                  [patterns[i].start, patterns[i].end],
-                  [startOffset, endOffset]
-                )
-              ) {
-                break;
-              }
-              if (i === patterns.length) {
-                this.namePatterns[index].text = text;
-                this.namePatterns[index].start = startOffset;
-                this.namePatterns[index].end = endOffset;
-              }
-            }
+            document
+              .getElementById(text)
+              .classList.add(this.namePatterns[index].color + "--text");
+            // const patterns = this.namePatterns.filter(n => n.start > -1);
+            // for (var i = 0; i < patterns.length; i++) {
+            //   // if (
+            //   //   isOverlapped(
+            //   //     [patterns[i].start, patterns[i].end],
+            //   //     [startOffset, endOffset]
+            //   //   )
+            //   // ) {
+            //   //   break;
+            //   // }
+            //   console.log(patterns.length);
+            //   if (i === patterns.length) {
+            this.namePatterns[index].text = text;
+            // this.namePatterns[index].start = startOffset;
+            // this.namePatterns[index].end = endOffset;
+            // }
+            // }
           }
         }
       }

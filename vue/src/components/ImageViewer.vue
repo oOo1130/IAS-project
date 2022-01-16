@@ -14,10 +14,7 @@
 </template>
 
 <script>
-/* eslint-disable no-unused-vars */
 import OpenSeadragon from "openseadragon";
-import config from "../../vue.config";
-import { mapState, mapGetters, mapActions } from "vuex";
 import { createNamespacedHelpers } from "vuex";
 const positionModule = createNamespacedHelpers("files/position");
 var path = require("path");

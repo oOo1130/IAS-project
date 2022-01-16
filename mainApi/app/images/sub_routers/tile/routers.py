@@ -1,10 +1,12 @@
 import asyncio
 import concurrent
-
+import os
 import pydantic
 from PIL import Image
-
+from fastapi.responses import JSONResponse, FileResponse
+from fastapi.encoders import jsonable_encoder
 from fastapi import (
+    Request,
     APIRouter,
     Depends,
     status,
@@ -20,33 +22,52 @@ from typing import List
 from mainApi.app.db.mongodb import get_database
 from mainApi.app.images.sub_routers.tile.models import AlignNaiveRequest, TileModelDB, AlignedTiledModel
 from mainApi.app.images.utils.align_tiles import align_tiles_naive, align_ashlar
-from mainApi.app.images.utils.file import save_upload_file, add_image_tiles
+from mainApi.app.images.utils.file import save_upload_file, add_image_tiles, convol2D_processing
 from mainApi.app.images.utils.folder import get_user_cache_path, clear_path
 from mainApi.app.auth.models.user import UserModelDB, PyObjectId
+from mainApi.config import STATIC_PATH
+import aiofiles
 
 router = APIRouter(
     prefix="/tile",
     tags=["tile"],
 )
-
-
-@router.post("/upload_image_tiles",
-             response_description="Upload Image Tiles",
-             status_code=status.HTTP_201_CREATED,
-             response_model=List[TileModelDB])
+@router.post("/upload_image_tiles/", 
+        response_description="Upload Image Tiles",
+        status_code=status.HTTP_201_CREATED,
+        response_model = List[TileModelDB])
 async def upload_image_tiles(files: List[UploadFile] = File(...),
-                             clear_previous: bool = Form(True),
-                             current_user: UserModelDB = Depends(get_current_user),
-                             db: AsyncIOMotorDatabase = Depends(get_database)) -> List[TileModelDB]:
-    """
-    Saves the uploaded tiles to the cache-storage folder/volume under the user_id of the current_user
+                    clear_previous: bool = Form(False),
+                    current_user: UserModelDB = Depends(get_current_user),
+                    db: AsyncIOMotorDatabase = Depends(get_database)) -> List[TileModelDB]:
+    file_path = STATIC_PATH.joinpath(files[0].filename)
+    for f in os.listdir(STATIC_PATH):
+        os.remove(os.path.join(STATIC_PATH, f))
+        
+    async with aiofiles.open(file_path, 'wb') as f:
+        content = await files[0].read()
+        await f.write(content)
+    cal = await add_image_tiles(path = file_path, files=files, clear_previous=clear_previous, current_user=current_user, db=db) 
+    result = {"3D_flag": cal[0],
+                "N_images": cal[1],
+                "path_images": cal[2]}
+    return JSONResponse(result)
 
-    Front end should include a validator that checks if the file has already been uploaded and then reject it.
-    No validation is done in the backend
-    """
-
-    return await add_image_tiles(files=files, clear_previous=clear_previous, current_user=current_user, db=db)
-
+@router.post("/convol2D/", 
+        response_description="Convolution about 2D image",
+        status_code=status.HTTP_201_CREATED,
+        response_model = List[TileModelDB])
+async def upload_image_name(files_name: str = File(...),
+                    clear_previous: bool = Form(False),
+                    current_user: UserModelDB = Depends(get_current_user),
+                    db: AsyncIOMotorDatabase = Depends(get_database)) -> List[TileModelDB]:
+    files_name = files_name.split("/")[-1]
+    abs_path = convol2D_processing(files_name)
+    abs_path = abs_path.split("/")[-1]
+    path = []
+    path.append(abs_path)
+    result = {"path": path}
+    return JSONResponse(result)
 
 @router.get("/list",
             response_description="Upload Image Tiles",
@@ -54,9 +75,8 @@ async def upload_image_tiles(files: List[UploadFile] = File(...),
             status_code=status.HTTP_200_OK)
 async def get_tile_list(current_user: UserModelDB = Depends(get_current_user),
                         db: AsyncIOMotorDatabase = Depends(get_database)) -> List[TileModelDB]:
-    tiles = await db['tile-image-cache'].find({'user_id': current_user.id}).to_list(None)
+    tiles = await db['tile-image-cache'].find({'user_id': current_user.id})["absolute_path"]
     return pydantic.parse_obj_as(List[TileModelDB], tiles)
-
 
 @router.post("/update",
              response_description="Update Image Tiles",

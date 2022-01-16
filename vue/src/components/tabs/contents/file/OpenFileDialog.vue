@@ -17,10 +17,10 @@
           @dragleave.prevent="dragLeave"
           @drop.prevent="drop($event)"
         >
-          <v-btn class="d-block text-none" color="primary" text>
+          <!-- <v-btn class="d-block text-none" color="primary" text>
             <v-icon class="mr-3"> mdi-folder </v-icon>
             Use f for closed files
-          </v-btn>
+          </v-btn> -->
           <v-btn
             class="d-block text-none"
             color="primary"
@@ -64,7 +64,7 @@
 // import { mapGetters } from "vuex";
 import tiff from "tiff.js";
 import atob from "atob";
-
+// import axios from 'axios';
 import SimpleDialog from "../../../custom/SimpleDialog";
 
 export default {
@@ -200,8 +200,12 @@ export default {
 
       if (this.newFile) {
         var formData = new FormData();
-        formData.append("file_0", this.newFile);
-        this.$store.dispatch("image/setNewFiles", formData);
+        // var baseURL = "http://127.0.0.1:8000";
+        // formData.append("files", this.newFile);
+        // this.$store.dispatch("image/setNewFiles", formData);
+        formData.append("files", this.newFile);
+        var image_obj = this.$store.dispatch("image/setNewFiles", formData);
+        console.log(image_obj);
       }
     },
 

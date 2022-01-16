@@ -2,6 +2,7 @@
 // import { of } from "core-js/core/array";
 import * as API from "../../api";
 import "./files";
+// const OPEN_DIALOG_IMAGE_SRC;
 
 const DEFAULT_PARAMS = {
   Z: 1,
@@ -18,7 +19,7 @@ const state = () => ({
   loading: false,
   loading_count: 0,
   loading_count_max: 0,
-
+  imageUri: [],
 
   coreMetadata: null,
   originMetadata: null,
@@ -53,6 +54,9 @@ const getters = {
       url: state.imageData,
       isNew: state.isNew
     };
+  },
+  getImageUri: state => {
+    return state.imageUri;
   },
   currentPageData: (state, getters) => state.allData[state.curPageIdx - 1],
   newRes: (state, getters) => state.newRes,
@@ -248,13 +252,11 @@ const actions = {
   setNewFiles({ commit, state }, formData) {
     // if (state.loading) return;
     commit("incLoadingCount");
-
     API.setMetadata(formData)
       .then(response => {
-        commit("setNewResponse", response);
-
-        commit("decLoadingCount");
-        console.log("loading count:" + state.loading_count);
+        // var list_name = response.data.path_images;
+        state.imageUri = response.data.path_images;
+        return response;
       })
       .catch(error => {
         commit("decLoadingCount");
@@ -262,6 +264,18 @@ const actions = {
 
         console.log(error);
       });
+  },
+
+  convol2D({ commit, state }, formData) {
+      commit("incLoadingCount");
+      API.sendImageFile(formData)
+      .then(response => {
+        console.log(response)
+        state.imageUri = response.data.path;
+      })
+      .catch(error => {
+        console.log("Occure error when 2D convolution");
+      })
   },
 
   changeImage({ commit, state }, imageId) {
@@ -311,7 +325,7 @@ const actions = {
 
   changeParameterByT({ commit, state }, t) {
     changeParameter(commit, state, {
-      T: t,
+      T: t
     });
   },
 
@@ -373,6 +387,10 @@ const mutations = {
   incLoadingCount(state, data) {
     state.loading_count++;
     state.loading_count_max = state.loading_count;
+  },
+
+  setImageUrl(state, data) {
+    state.imageUri = data.uri;
   },
 
   decLoadingCount(state, data) {
@@ -623,9 +641,7 @@ function filtteredByParameters(parameters, images) {
   );
 
   // filter by timeline
-  filtered = images.filter(
-    img => img.extParams.timeline == parameters.T
-  );
+  filtered = images.filter(img => img.extParams.timeline == parameters.T);
 
   return filtered;
 }

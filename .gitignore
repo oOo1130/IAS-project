@@ -1,6 +1,6 @@
 .DS_Store
 Thumbs.db
-.gitignore
+
 # temp & cache directory
 /tmp
 cache/
@@ -10,7 +10,6 @@ node_modules/
 # dist/
 # static/
 # templates/
-
 # local env files
 .env.local
 .env.*.local

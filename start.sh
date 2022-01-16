@@ -2,12 +2,10 @@
 
 cd "$(dirname "$0")"
 
-git pull
-
 echo ---- Starting Backend
+git pull
 docker compose build
 docker compose up -d
-
 cd vue
 
 npm install

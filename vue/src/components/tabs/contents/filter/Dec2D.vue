@@ -21,7 +21,10 @@ export default {
 
   methods: {
     select1: function() {
-      console.log("Select-1");
+        var formData = new FormData();
+        var image_name = this.$store.state.image.imageUri
+        formData.append("files_name", image_name);
+        this.$store.dispatch("image/convol2D", formData); 
     },
     select2: function() {
       console.log("Select-2");

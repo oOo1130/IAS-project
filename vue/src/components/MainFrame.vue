@@ -4,7 +4,7 @@
       <!-- Left Sidebar -->
       <v-col cols="2">
         <v-container
-          class="px-3 py-0 auto-scroll d-flex flex-column justify-space-between"
+          class="px-1 py-0 auto-scroll"
           :style="{ height: windowHeight + 'px' }"
         >
           <div>
@@ -82,7 +82,7 @@
             </v-tab>
 
             <v-tab href="#tabs-2-3" class="primary--text">
-              <v-icon>mdi-poll</v-icon>
+              <v-icon>mdi-poll</v-icon> 
             </v-tab>
 
             <v-tab href="#tabs-2-4" class="primary--text">
@@ -108,7 +108,7 @@
       </v-col>
     </v-row>
 
-    <loading
+    <!-- <loading
       :active.sync="loading_count_gt_zero"
       :can-cancel="false"
       :is-full-page="true"
@@ -139,7 +139,7 @@
         ></v-progress-circular>
         <div class="title mt-4 teal--text">Loading...</div>
       </v-container>
-    </loading>
+    </loading> -->
   </v-container>
 </template>
 
@@ -162,7 +162,7 @@ export default {
   name: "MainFrame",
 
   components: {
-    Loading,
+    // Loading,
 
     ImageViewer,
     DLMLTab,
@@ -178,7 +178,7 @@ export default {
   data() {
     var self = this;
     return {
-      selectedTabLeft: "tabs-left-4",
+      selectedTabLeft: 'tabs-1-4',
       selectedTabRight: null,
       windowHeight: self.getWindowHeight()
     };
@@ -234,10 +234,21 @@ export default {
 </script>
 
 <style scoped>
+v-tab {
+  padding: 0px !important;
+}
 .auto-scroll {
   overflow: auto;
 }
 .loading-progress-bar {
   width: 300pt;
+}
+.v-tab{
+  min-width: 50px;
+}
+.v-slide-group__content{
+  height: 2px;
+  left: 0px;
+  width: 50px;
 }
 </style>
